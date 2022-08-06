@@ -12,7 +12,8 @@ export default function Navbar() {
             <ul>
                 <li>
                     <Link href="/">
-                        <button className="btn-logo">Home</button>
+                        {/* <button className="btn-logo">Home</button> */}
+                        <span className='d-flex align-items-center'><Image src="/chicken.svg" width='50' height='50' alt="Chicken tracker logo" />Chicken Tracker</span>
                     </Link>
                 </li>
 
@@ -25,11 +26,11 @@ export default function Navbar() {
                             </Link>
                         </li> */}
                         <li className='push-left'>
-                            <span className='me-3'>{user?.displayName}</span>
+                            <div className='me-3 user-name'>{user?.displayName}</div>
                         </li>
                         <li>
                             <Link href={`/flocks/${defaultFlock}`}>
-                                <Image src={user?.photoURL} width="50" height="50" alt="" />
+                                <img src={user?.photoURL} width="50" height="50" alt="" className='profile-image' />
                             </Link>
                         </li>
                     </>
