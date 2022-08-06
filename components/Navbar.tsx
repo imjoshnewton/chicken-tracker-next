@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { useContext } from 'react';
 import { UserContext } from '../libs/context';
@@ -28,7 +29,7 @@ export default function Navbar() {
                         </li>
                         <li>
                             <Link href={`/flocks/${defaultFlock}`}>
-                                <img src={user?.photoURL} />
+                                <Image src={user?.photoURL} width="50" height="50" alt="" />
                             </Link>
                         </li>
                     </>
