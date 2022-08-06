@@ -40,7 +40,7 @@ export default function Stats({ logs, flock, className }) {
     }
 
     function calcDailyAverage(flock: any) {
-        const breedAverages = flock.chickens.map(breed => (breed.averageProduction * breed.count) / 7);
+        const breedAverages = flock?.chickens.map(breed => (breed.averageProduction * breed.count) / 7);
         const dailyAverage = breedAverages.reduce((a, b) => a + b);
 
         return dailyAverage;
@@ -58,6 +58,10 @@ export default function Stats({ logs, flock, className }) {
             },
         },
     };
+
+    if(!flock || !logs) {
+        return null;
+    }
 
     return (
         <div className={className}>
