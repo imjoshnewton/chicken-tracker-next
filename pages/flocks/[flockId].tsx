@@ -12,7 +12,14 @@ import { useEffect } from "react";
 export default function Flocks({ params }) {
     const router = useRouter();
     const { flockId } = router.query;
-
+    
+    let flockDoc = doc(firestore, `flocks/${flockId}`);
+    let [flockData, loading, error] = useDocumentData(flockDoc);
+    
+    let logCol = collection(firestore, 'logs');
+    let q = query(logCol, where('flock', '==', flockId), orderBy('date', 'desc'), limit(7));;
+    let [logData] = useCollectionData(q);
+    
     if (!flockId) {
         return (
             <main>
@@ -20,14 +27,7 @@ export default function Flocks({ params }) {
             </main>
         );
     }
-
-    let flockDoc = doc(firestore, `flocks/${flockId}`);
-    let [flockData, loading, error] = useDocumentData(flockDoc);
-
-    let logCol = collection(firestore, 'logs');
-    let q = query(logCol, where('flock', '==', flockId), orderBy('date', 'desc'), limit(7));;
-    let [logData] = useCollectionData(q);
-
+    
     return (
         !loading 
             ? error ? (<main><p>{error.message}</p></main>) 
