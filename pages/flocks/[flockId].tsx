@@ -27,6 +27,7 @@ export default function Flocks({ params }) {
                                     <p>{flockData.type}</p>
                                 </div>
                             </div>
+                            <div className="divider my-4"></div>
                             <div>
                                 <h3>Breeds</h3>
                                 <div className="d-flex flex-wrap">
