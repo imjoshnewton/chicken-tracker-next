@@ -1,8 +1,4 @@
-import { collection, doc, limit, orderBy, query, where } from "firebase/firestore";
-import { useRouter } from "next/router";
 import Image from "next/image";
-import { useCollectionData, useDocumentData } from 'react-firebase-hooks/firestore';
-import { firestore } from "../../libs/firebase";
 import Card from "../../components/Card";
 import Loader from "../../components/Loader";
 import Breeds from "../../components/Breeds";
@@ -17,7 +13,7 @@ export default function Flocks({ params }) {
         <main>
             {
                 flock ? (
-                    <Card title="Flock Details">
+                    <Card title="Flock Details" key={flockId.toString()}>
                         <div className="d-flex align-items-center">
                             <Image src={flock?.imageUrl} width="150" height="150" className="flock-image" alt="" />
                             <div className="ms-4">
