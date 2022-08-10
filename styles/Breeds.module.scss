@@ -1,0 +1,14 @@
+.title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.content {
+    display: none;
+    flex-wrap: wrap;
+}
+
+.active {
+    display: flex;
+    flex-wrap: wrap;
+}
