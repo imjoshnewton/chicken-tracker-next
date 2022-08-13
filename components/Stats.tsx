@@ -1,84 +1,201 @@
-import { DocumentData, Timestamp } from "firebase/firestore";
 import { Line } from "react-chartjs-2";
-import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import Link from "next/link";
+import Loader from "./Loader";
+import { MdOutlineTrendingDown, MdOutlineTrendingUp } from "react-icons/md";
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Timestamp } from "firebase/firestore";
 
-Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
-export default function Stats({ logs, flock, className }) {
-    function chartData(logs: DocumentData[], flock?: any) {
-        const flockDailyAverage = calcDailyAverage(flock);
-        const sorted = logs.sort((a, b) => {
-            return (a['date'] as Timestamp).toMillis() > (b['date'] as Timestamp).toMillis() ? 1 : -1
-        })
-        return {
-            datasets: [
-                {
-                    data: sorted.map((i: any) => i.count),
-                    label: 'Egg Production',
-                    backgroundColor: 'rgba(39,166,154,0.2)',
-                    borderColor: 'rgba(39,166,154,1)',
-                    pointBackgroundColor: 'rgba(148,159,177,1)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-                    fill: 'origin',
-                },
-                {
-                    data: sorted.map((i: any) => flockDailyAverage),
-                    label: 'Flock Average',
-                    backgroundColor: 'rgba(149,159,177,0.2)',
-                    borderColor: 'rgba(149,159,177,1)',
-                    pointBackgroundColor: 'rgba(148,159,177,1)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-                    fill: 'origin',
-                }
-            ],
-            labels: sorted.map((i: any) => (i.date as Timestamp).toDate().toLocaleString('us-EN', { year: 'numeric', month: 'numeric', day: 'numeric' }))
-        }
-    }
+export default function Stats({
+  logs,
+  flock,
+  className,
+  limit,
+  onRangeChange,
+}: {
+  logs: any[] | null | undefined;
+  flock: any;
+  className: string;
+  limit: string;
+  onRangeChange: any;
+}) {
+  function chartData(logs: any[], flock: any) {
+    const flockDailyAverage = calcDailyAverage(flock);
+    const chartArray = createChartArray(logs, Number(limit));
 
-    function calcDailyAverage(flock: any) {
-        const breedAverages = flock?.chickens.map(breed => (breed.averageProduction * breed.count) / 7);
-        const dailyAverage = breedAverages.reduce((a, b) => a + b);
-
-        return dailyAverage;
-    }
-
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top' as const,
-            },
-            title: {
-                display: false,
-                text: 'Chart.js Line Chart',
-            },
+    return {
+      datasets: [
+        {
+          data: chartArray.map((i: any) => i.count),
+          label: "Egg Production",
+          backgroundColor: "rgba(39,166,154,0.2)",
+          borderColor: "rgba(39,166,154,1)",
+          pointBackgroundColor: "rgba(39,166,154,0.8)",
+          pointBorderColor: "rgba(39,166,154,0.8)",
+          pointHoverBackgroundColor: "#fff",
+          pointHoverBorderColor: "rgba(148,159,177,0.8)",
+          fill: "origin",
         },
+        {
+          data: chartArray.map(() => flockDailyAverage),
+          label: "Target Average",
+          backgroundColor: "rgba(149,159,177,0.2)",
+          borderColor: "rgba(149,159,177,1)",
+          pointBackgroundColor: "rgba(148,159,177,1)",
+          pointBorderColor: "#fff",
+          pointHoverBackgroundColor: "#fff",
+          pointHoverBorderColor: "rgba(148,159,177,0.8)",
+          fill: "origin",
+          pointRadius: 0,
+        },
+      ],
+      labels: chartArray.map((d) => d.date),
     };
+  }
 
-    if(!flock || !logs) {
-        return null;
+  function calcDailyAverage(flock: any): number {
+    const breedAverages = flock.chickens.map(
+      (breed) => (breed.averageProduction * breed.count) / 7
+    );
+    const dailyAverage = breedAverages.reduce((a, b) => a + b);
+
+    return dailyAverage;
+  }
+
+  function calcActualDailyAverage(logs: any[]) {
+    const average =
+      logs.map((l) => l.count).reduce((a, b) => a + b) / logs.length;
+
+    return average;
+  }
+
+  function getDatesInRange(limit: number) {
+    const retArray: Date[] = [];
+
+    for (let i: number = limit - 1; i >= 0; i--) {
+      const today = new Date(Date.now());
+      retArray.push(new Date(today.setDate(today.getDate() - i)));
     }
 
+    return retArray;
+  }
+
+  function createChartArray(logs: any[], limit: number) {
+    const dates = getDatesInRange(Number(limit));
+    const logsArray = logs.map((log) => {
+      return {
+        ...log,
+        date: log.date.toDate().toLocaleString("us-EN", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        }),
+      };
+    });
+
+    const retArray = dates.map((date) => {
+      const stringValue = date.toLocaleString("us-EN", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      });
+
+      const index = logsArray.map((l) => l.date).indexOf(stringValue);
+
+      if (index >= 0) {
+        return {
+          ...logsArray[index],
+        };
+      } else {
+        return {
+          date: stringValue,
+          //   _sum: {
+          count: 0,
+          //   },
+        };
+      }
+    });
+
+    return retArray;
+  }
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: false,
+        text: "Chart.js Line Chart",
+      },
+    },
+  };
+
+  if (!flock || !logs) {
     return (
-        <div className={className}>
-            <h3>Stats</h3>
-            <div className="d-flex flex-wrap">
-                <Line data={chartData(logs, flock)} options={options} id="flockchart"></Line>
-                {/* {
-                    logs.map((log, index) => {
-                        return (
-                            <>
-                                <pre>{log.count}</pre>
-                                <pre>{log.notes}</pre>
-                            </>
-                        )
-                    })
-                } */}
-            </div>
-        </div>
+      <div className='flex justify-center items-center basis-[48%]'>
+        <Loader show={true}></Loader>
+      </div>
     );
+  }
+
+  const targetDailyAvg = calcDailyAverage(flock);
+  const actualDailyAvg = calcActualDailyAverage(logs);
+
+  return (
+    <div className={className}>
+      <div className='flex justify-between'>
+        <h2 className='mb-4'>Stats</h2>
+        <select defaultValue={limit} onChange={onRangeChange}>
+          <option value='7'>Last 7 Days</option>
+          <option value='15'>Last 15 Days</option>
+          <option value='30'>Last 30 Days</option>
+        </select>
+      </div>
+      <div className='flex flex-col'>
+        <Line
+          data={chartData(logs, flock)}
+          options={options}
+          id='flockchart'></Line>
+        <div className='p-2'></div>
+        <div className='flex justify-between'>
+          <div>Target Daily Avg: {targetDailyAvg.toFixed(2)}</div>
+          <div className='flex items-center'>
+            Actual Daily Avg:
+            <span className='ml-1'>{actualDailyAvg.toFixed(2)}</span>
+            <span className='ml-1'>
+              {actualDailyAvg < targetDailyAvg ? (
+                <MdOutlineTrendingDown className='text-red-600' />
+              ) : (
+                <MdOutlineTrendingUp className=' text-green-600' />
+              )}
+            </span>
+          </div>
+        </div>
+        <div className='p-2'></div>
+        <Link href={`/flocks/${flock.id}/logs`} className=''>
+          See all logs &gt;
+        </Link>
+      </div>
+    </div>
+  );
 }

@@ -1,37 +1,62 @@
 import Image from "next/image";
 import { useState } from "react";
-import styles from "../styles/Breeds.module.scss";
+import { MdOutlineExpandLess, MdOutlineExpandMore } from "react-icons/md";
+import Loader from "./Loader";
 
-export default function Breeds({ breeds, className }) {
-    const [isActive, setIsActive] = useState(false);
+export default function Breeds({
+  breeds,
+  className,
+}: {
+  breeds: any[];
+  className: string;
+}) {
+  const [isActive, setIsActive] = useState(false);
 
-    if (!breeds) {
-        return null;
-    }
-
+  if (!breeds) {
     return (
-        <div className={className}>
-            <h3 className={styles.title} onClick={() => setIsActive(!isActive)}>Breeds<span>{isActive ? '-' : '+'}</span></h3>
-            {/* {isActive && ( */}
-                <div className={isActive ? styles.active : styles.content}>
-                    {
-                        breeds?.map((breed, index) => {
-                            return (
-                                <div className="d-flex align-items-center breed" key={index}>
-                                    <Image src={breed.imageUrl} width="50" height="50" className="flock-image" alt="" />
-                                    <div className="ms-3">
-                                        <p>
-                                            <strong>{breed.breed}</strong>
-                                            <br />
-                                            <strong>Count: </strong>{breed.count}
-                                        </p>
-                                    </div>
-                                </div>
-                            )
-                        })
-                    }
-                </div>
-            {/* )} */}
-        </div>
+      <div className='flex justify-center items-center basis-[48%]'>
+        <Loader show={true}></Loader>
+      </div>
     );
+  }
+
+  return (
+    <div className={className}>
+      <h2
+        className='flex justify-between items-center mb-6'
+        onClick={() => setIsActive(!isActive)}>
+        Breeds
+        {isActive ? (
+          <MdOutlineExpandLess className='inline md:hidden' />
+        ) : (
+          <MdOutlineExpandMore className='inline md:hidden' />
+        )}
+      </h2>
+      {/* {isActive && ( */}
+      <div className={isActive ? "flex flex-wrap" : "hidden md:flex flex-wrap"}>
+        {breeds?.map((breed: any, index: number) => {
+          return (
+            <div className='flex items-center breed mb-4' key={index}>
+              <Image
+                src={breed.imageUrl!}
+                width='50'
+                height='50'
+                className='flock-image'
+                alt=''
+              />
+              <div className='ml-3'>
+                <p>
+                  <strong>{breed.breed}</strong>
+                  <br />
+                  <strong>Count: </strong>
+                  {breed.count}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {/* )} */}
+    </div>
+  );
 }

@@ -1,12 +1,12 @@
 import { auth, firestore } from '../libs/firebase';
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { collection, doc, getDoc, limit, onSnapshot, orderBy, query, QuerySnapshot, where } from 'firebase/firestore';
+import { collection, doc, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 
 // Custom hook to read  auth record and user profile doc
 export function useUserData() {
-    const [user] = useAuthState(auth);
+    const [user] = useAuthState(auth, );
     const [defaultFlock, setDefaultFlock] = useState(null);
 
     useEffect(() => {
@@ -42,7 +42,10 @@ export function useFlockData() {
             const flockDoc = doc(firestore, `flocks/${flockId}`);
 
             unsubFlock = onSnapshot(flockDoc, (doc) => {
-                setFlock(doc.data());
+                setFlock({
+                    ...doc.data(),
+                    id: doc.id,
+                });
             });
         }
         else {
@@ -55,18 +58,25 @@ export function useFlockData() {
     return { flockId, flock };
 }
 
-export function useLogsData() {
+export function useLogsData({ limit }: { limit: number }) {
     const router = useRouter();
     const { flockId } = router.query;
 
     const [logs, setLogs] = useState(null);
+
+    var today = new Date(Date.now())
+    var pastDate = new Date(today);
+    pastDate.setDate(pastDate.getDate() - limit);
+
+    // console.log("Today: ", today);
+    // console.log("Past Date: ", pastDate);
 
     useEffect(() => {
         let unsubLogs;
 
         if (flockId) {
             const logCol = collection(firestore, 'logs');
-            const q = query(logCol, where('flock', '==', flockId), orderBy('date', 'desc'), limit(7));
+            const q = query(logCol, where('flock', '==', flockId), where('date', '<=', Timestamp.fromDate(today)), where('date', '>=', Timestamp.fromDate(pastDate)), orderBy('date', 'desc'));
 
             unsubLogs = onSnapshot(q, (docs) => {
                 setLogs(docs.docs.map(doc => doc.data()));
@@ -77,7 +87,80 @@ export function useLogsData() {
         }
 
         return unsubLogs;
+    }, [flockId, limit])
+
+    return { logs };
+}
+
+export function useAllLogsData() {
+    const router = useRouter();
+    const { flockId } = router.query;
+
+    const [logs, setLogs] = useState(null);
+
+    useEffect(() => {
+        let unsubLogs;
+
+        if (flockId) {
+            const logCol = collection(firestore, 'logs');
+            const q = query(logCol, where('flock', '==', flockId), orderBy('date', 'desc'));
+
+            unsubLogs = onSnapshot(q, (docs) => {
+                const docsWithIds = docs.docs.map(doc => {
+                    return {
+                        id: doc.id,
+                        count: doc.data().count,
+                        date: doc.data().date,
+                        notes: doc.data().notes,
+                    }
+                });
+                setLogs(docsWithIds);
+            })
+        }
+        else {
+            setLogs(null);
+        }
+
+        return unsubLogs;
     }, [flockId])
 
     return { logs };
+}
+
+export function useAllExpensesData() {
+    const router = useRouter();
+    const { flockId } = router.query;
+
+    const [expenses, setExpenses] = useState(null);
+
+    useEffect(() => {
+        let unsubLogs;
+
+        if (flockId) {
+            const expCol = collection(firestore, 'expenses');
+            const q = query(expCol, where('flock', '==', flockId), orderBy('date', 'desc'));
+
+            unsubLogs = onSnapshot(q, (docs) => {
+                const docsWithIds = docs.docs.map(doc => {
+                    return {
+                        id: doc.id,
+                        amount: doc.data().amount,
+                        date: doc.data().date,
+                        memo: doc.data().memo,
+                    }
+                });
+                setExpenses(docsWithIds);
+            }, (error) => {
+                console.log("Error: ", error);
+                
+            })
+        }
+        else {
+            setExpenses(null);
+        }
+
+        return unsubLogs;
+    }, [flockId])
+
+    return { expenses };
 }
