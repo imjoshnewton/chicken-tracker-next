@@ -1,16 +1,15 @@
-import { signInWithPopup, signOut } from "firebase/auth";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { useContext, useEffect } from "react";
-import Card from "../components/Card";
-import { UserContext } from "../libs/context";
+
+import { signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleAuthProvider } from "../libs/firebase";
+import { UserContext } from "../libs/context";
+
+import Card from "../components/Card";
 
 export default function Login(props) {
-  var { user, defaultFlock } = useContext(UserContext);
+  const { user, defaultFlock } = useContext(UserContext);
 
-  // 1. user signed out <SignInButton />
-  // 2. user signed in, but missing username <UsernameForm />
-  // 3. user signed in, has username <SignOutButton />
   return (
     <main>
       <Card title=''>
