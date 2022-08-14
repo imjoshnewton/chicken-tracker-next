@@ -67,10 +67,8 @@ export function useLogsData() {
 
     var today = new Date(Date.now())
     var pastDate = new Date(today);
-    pastDate.setDate(pastDate.getDate() - range);
 
-    // console.log("Today: ", today);
-    // console.log("Past Date: ", pastDate);
+    pastDate.setDate(pastDate.getDate() - range);
 
     useEffect(() => {
         let unsubLogs;
