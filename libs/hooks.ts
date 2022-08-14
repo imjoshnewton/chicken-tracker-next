@@ -58,15 +58,16 @@ export function useFlockData() {
     return { flockId, flock };
 }
 
-export function useLogsData({ limit }: { limit: number }) {
+export function useLogsData() {
     const router = useRouter();
-    const { flockId } = router.query;
+    const { flockId, statsRange } = router.query;
+    const range = statsRange ? Number(statsRange) : 7;
 
     const [logs, setLogs] = useState(null);
 
     var today = new Date(Date.now())
     var pastDate = new Date(today);
-    pastDate.setDate(pastDate.getDate() - limit);
+    pastDate.setDate(pastDate.getDate() - range);
 
     // console.log("Today: ", today);
     // console.log("Past Date: ", pastDate);
@@ -87,9 +88,9 @@ export function useLogsData({ limit }: { limit: number }) {
         }
 
         return unsubLogs;
-    }, [flockId, limit])
+    }, [flockId, range])
 
-    return { logs };
+    return { logs, range };
 }
 
 export function useAllLogsData() {

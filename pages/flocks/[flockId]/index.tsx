@@ -9,14 +9,19 @@ import LogModal from "../../../components/LogModal";
 import ExpenseModal from "../../../components/ExpenseModal";
 import Breeds from "../../../components/Breeds";
 import Stats from "../../../components/Stats";
+import { useRouter } from "next/router";
 
 export default function Flocks({ params }) {
-  const [limit, setLimit] = useState("7");
+  const router = useRouter();
   const { flockId, flock } = useFlockData();
-  const { logs } = useLogsData({ limit: Number(limit) });
+  const { logs, range } = useLogsData();
 
   const onRangeChange = (event: any) => {
-    setLimit(event.target.value);
+    const newRange = event.target.value;
+
+    router.replace({
+      query: { ...router.query, statsRange: newRange },
+    });
   };
 
   return (
@@ -51,7 +56,7 @@ export default function Flocks({ params }) {
               logs={logs}
               flock={flock}
               className='flex-48'
-              limit={limit}
+              limit={range.toString()}
               onRangeChange={onRangeChange}></Stats>
           </div>
         </Card>
