@@ -9,6 +9,7 @@ export interface Flock {
   owner: string;
   default: boolean;
   breeds: Breed[];
+  stats: any;
 }
 
 export interface Breed {

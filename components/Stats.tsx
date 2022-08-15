@@ -1,7 +1,12 @@
 import { Line } from "react-chartjs-2";
 import Link from "next/link";
 import Loader from "./Loader";
-import { MdOutlineTrendingDown, MdOutlineTrendingUp } from "react-icons/md";
+import {
+  MdOutlineTrendingDown,
+  MdOutlineTrendingUp,
+  MdArrowDownward,
+  MdArrowUpward,
+} from "react-icons/md";
 import {
   Chart,
   CategoryScale,
@@ -12,7 +17,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Timestamp } from "firebase/firestore";
+// import { Timestamp } from "firebase/firestore";
 import { Flock, Log } from "../models/models";
 
 Chart.register(
@@ -28,12 +33,14 @@ Chart.register(
 export default function Stats({
   logs,
   flock,
+  stats,
   className,
   limit,
   onRangeChange,
 }: {
   logs: Log[] | null | undefined;
   flock: Flock;
+  stats: any;
   className: string;
   limit: string;
   onRangeChange: any;
@@ -185,6 +192,20 @@ export default function Stats({
             <span className='ml-1'>{actualDailyAvg.toFixed(2)}</span>
             <span className='ml-1'>
               {actualDailyAvg < targetDailyAvg ? (
+                <MdArrowDownward className='text-red-600' />
+              ) : (
+                <MdArrowUpward className=' text-green-600' />
+              )}
+            </span>
+          </div>
+        </div>
+        <div className='flex justify-between'>
+          <div>Last Weeks Avg: {stats.lastWeeksAverage.toFixed(2)}</div>
+          <div className='flex items-center'>
+            This Weeks Avg:
+            <span className='ml-1'>{stats.thisWeeksAverage.toFixed(2)}</span>
+            <span className='ml-1'>
+              {stats.thisWeeksAverage < stats.lastWeeksAverage ? (
                 <MdOutlineTrendingDown className='text-red-600' />
               ) : (
                 <MdOutlineTrendingUp className=' text-green-600' />

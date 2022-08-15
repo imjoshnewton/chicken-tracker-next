@@ -55,6 +55,7 @@ export default function Flocks({ params }) {
             <Stats
               logs={logs}
               flock={flock}
+              stats={flock.stats}
               className='flex-48'
               limit={range.toString()}
               onRangeChange={onRangeChange}></Stats>

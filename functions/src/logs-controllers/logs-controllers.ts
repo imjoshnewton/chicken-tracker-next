@@ -1,42 +1,22 @@
 import * as admin from "firebase-admin";
-import { Timestamp } from "firebase/firestore";
-import * as serviceAccount from "../serviceaccount/chicken-tracker-83ef8-firebase-adminsdk-dwql3-6f33babbee.json";
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-});
+import { Flock } from "../../../models/models";
 
 const db = admin.firestore();
 
-async function updateFlockSchema() {
-  const flockCol = await db.collection("flocks").get();
-
-  return Promise.all(
-    flockCol.docs.map((doc) => {
-      const docData = doc.data();
-      const brreds = docData.breeds.map((b: any) => {
-        return {
-          name: b.breed,
-          count: b.count,
-          averageProduction: b.averageProduction,
-          imageUrl: b.imageUrl,
-        };
-      });
-
-      return doc.ref.update({
-        name: docData.name,
-        description: docData.description,
-        owner: docData.owner,
-        type: docData.type,
-        imageUrl: docData.imageUrl,
-        default: docData.default,
-        breeds: brreds,
-      });
-    })
+export async function getFlockStats(flock: Flock) {
+  const breedTargetAverage = flock.breeds.map(
+    (breed) => (breed.averageProduction * breed.count) / 7
   );
-}
+  const targetDailyAverage = breedTargetAverage.reduce((a, b) => a + b);
+  const logs = await db
+    .collection("logs")
+    .where("flock", "==", flock.id)
+    .limit(120)
+    .get();
+  const logDocs = logs.docs;
+  const actualDailyAverage =
+    logDocs.map((l) => l.data().count).reduce((a, b) => a + b) / logDocs.length;
 
-async function getLastWeekandThisWeek() {
   const thisWeek = getThisWeek();
   const lastWeek = getLastWeek();
 
@@ -67,16 +47,21 @@ async function getLastWeekandThisWeek() {
 
   console.log(lastWeeksLogs.size);
 
-  const thisWeeksAverage =
-    thisWeeksLogs.docs.map((d) => d.data().count).reduce((a, b) => a + b) /
-    thisWeeksLogs.docs.length;
-  const lastWeeksAverage =
-    lastWeeksLogs.docs.map((d) => d.data().count).reduce((a, b) => a + b) /
-    lastWeeksLogs.docs.length;
+  const thisWeeksAverage = thisWeeksLogs.size
+    ? thisWeeksLogs.docs.map((d) => d.data().count).reduce((a, b) => a + b) /
+      thisWeeksLogs.docs.length
+    : 0;
+  const lastWeeksAverage = lastWeeksLogs.size
+    ? lastWeeksLogs.docs.map((d) => d.data().count).reduce((a, b) => a + b) /
+      lastWeeksLogs.docs.length
+    : 0;
 
-  console.log(thisWeeksAverage);
-
-  console.log(lastWeeksAverage);
+  return {
+    targetDailyAverage,
+    actualDailyAverage,
+    thisWeeksAverage,
+    lastWeeksAverage,
+  };
 }
 
 function getThisWeek(): [
@@ -90,6 +75,7 @@ function getThisWeek(): [
   const endOfWeek = new Date(
     tempDate.setDate(tempDate.getDate() + (6 - dayOfWeek))
   );
+  endOfWeek.setHours(23, 59, 59, 999);
   tempDate = new Date(today);
   const beginningOfWeek = new Date(
     tempDate.setDate(tempDate.getDate() - dayOfWeek)
@@ -114,6 +100,7 @@ function getLastWeek(): [
   const endOfWeek = new Date(
     tempDate.setDate(tempDate.getDate() + (6 - dayOfWeek))
   );
+  endOfWeek.setHours(23, 59, 59, 999);
   tempDate = new Date(dayLastWeek);
   const beginningOfWeek = new Date(
     tempDate.setDate(tempDate.getDate() - dayOfWeek)
@@ -124,11 +111,3 @@ function getLastWeek(): [
     admin.firestore.Timestamp.fromDate(endOfWeek),
   ];
 }
-
-(async () => {
-  //   const result = await updateFlockSchema();
-
-  await getLastWeekandThisWeek();
-
-  //   console.log("Result: ", result);
-})();

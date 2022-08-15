@@ -48,7 +48,7 @@ const LogModal = ({ flockId }: { flockId: string | undefined }) => {
   return (
     <>
       <button
-        className='px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 btn w-full md:w-auto'
+        className='px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 btn w-full md:w-auto h-10'
         type='button'
         onClick={() => setShowModal(true)}>
         <MdOutlineEditNote className='text-2xl' />
@@ -63,7 +63,15 @@ const LogModal = ({ flockId }: { flockId: string | undefined }) => {
                   <h3 className='text-xl font=semibold'>New Log Entry</h3>
                 </div>
                 <div className='relative flex-auto'>
-                  <form className='px-8 pt-6 pb-8 w-full'>
+                  <form
+                    className='px-8 pt-6 pb-8 w-full'
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      // await createNewLog(flockId, date, count, notes);
+                      if (date && count) {
+                        await createNewLog(flockId, date, count, notes);
+                      }
+                    }}>
                     <label className='block text-black text-sm font-bold mb-1'>
                       Date
                     </label>
@@ -114,13 +122,7 @@ const LogModal = ({ flockId }: { flockId: string | undefined }) => {
                   </button>
                   <button
                     className='text-white bg-yellow-500 active:bg-yellow-700 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1'
-                    type='button'
-                    onClick={async () => {
-                      // await createNewLog(flockId, date, count, notes);
-                      if (date && count) {
-                        await createNewLog(flockId, date, count, notes);
-                      }
-                    }}>
+                    type='button'>
                     Submit
                   </button>
                 </div>
