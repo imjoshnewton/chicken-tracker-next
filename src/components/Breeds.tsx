@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { MdOutlineExpandLess, MdOutlineExpandMore } from "react-icons/md";
-import { Breed } from "../models/models";
+import { Breed } from "../../models/models";
 import Loader from "./Loader";
 
 export default function Breeds({

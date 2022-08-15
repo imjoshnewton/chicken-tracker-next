@@ -18,7 +18,7 @@ import {
   Legend,
 } from "chart.js";
 // import { Timestamp } from "firebase/firestore";
-import { Flock, Log } from "../models/models";
+import { Flock, Log } from "../../models/models";
 
 Chart.register(
   CategoryScale,
