@@ -4,12 +4,6 @@ import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import { useUserData } from "../libs/hooks";
 
-type TechnologyCardProps = {
-  name: string;
-  description: string;
-  documentation: string;
-};
-
 const Home: NextPage = () => {
   const router = useRouter();
   const { user, defaultFlock } = useUserData();
