@@ -13,6 +13,7 @@ import {
   Legend,
 } from "chart.js";
 import { Timestamp } from "firebase/firestore";
+import { Flock, Log } from "../models/models";
 
 Chart.register(
   CategoryScale,
@@ -31,13 +32,13 @@ export default function Stats({
   limit,
   onRangeChange,
 }: {
-  logs: any[] | null | undefined;
-  flock: any;
+  logs: Log[] | null | undefined;
+  flock: Flock;
   className: string;
   limit: string;
   onRangeChange: any;
 }) {
-  function chartData(logs: any[], flock: any) {
+  function chartData(logs: Log[], flock: Flock) {
     const flockDailyAverage = calcDailyAverage(flock);
     const chartArray = createChartArray(logs, Number(limit));
 
@@ -71,8 +72,8 @@ export default function Stats({
     };
   }
 
-  function calcDailyAverage(flock: any): number {
-    const breedAverages = flock.chickens.map(
+  function calcDailyAverage(flock: Flock): number {
+    const breedAverages = flock.breeds.map(
       (breed) => (breed.averageProduction * breed.count) / 7
     );
     const dailyAverage = breedAverages.reduce((a, b) => a + b);
@@ -80,7 +81,7 @@ export default function Stats({
     return dailyAverage;
   }
 
-  function calcActualDailyAverage(logs: any[]) {
+  function calcActualDailyAverage(logs: Log[]) {
     const average =
       logs.map((l) => l.count).reduce((a, b) => a + b) / logs.length;
 
@@ -98,7 +99,7 @@ export default function Stats({
     return retArray;
   }
 
-  function createChartArray(logs: any[], limit: number) {
+  function createChartArray(logs: Log[], limit: number) {
     const dates = getDatesInRange(Number(limit));
     const logsArray = logs.map((log) => {
       return {

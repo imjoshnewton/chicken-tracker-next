@@ -29,7 +29,12 @@ const LogModal = ({ flockId }: { flockId: string | undefined }) => {
     notes?: string
   ): Promise<void> {
     setWorking(true);
-    await addDoc(logCol, { flock: flockId, date, count, notes });
+    await addDoc(logCol, {
+      flock: flockId,
+      date,
+      count,
+      notes: notes ? notes : "",
+    });
     setWorking(false);
     // await createLogMutation.mutateAsync({ flockId, date, count, notes });
     closeModal();

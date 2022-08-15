@@ -1,13 +1,14 @@
 import Image from "next/image";
 import { useState } from "react";
 import { MdOutlineExpandLess, MdOutlineExpandMore } from "react-icons/md";
+import { Breed } from "../models/models";
 import Loader from "./Loader";
 
 export default function Breeds({
   breeds,
   className,
 }: {
-  breeds: any[];
+  breeds: Breed[];
   className: string;
 }) {
   const [isActive, setIsActive] = useState(false);
@@ -34,7 +35,7 @@ export default function Breeds({
       </h2>
       {/* {isActive && ( */}
       <div className={isActive ? "flex flex-wrap" : "hidden md:flex flex-wrap"}>
-        {breeds?.map((breed: any, index: number) => {
+        {breeds?.map((breed: Breed, index: number) => {
           return (
             <div className='flex items-center breed mb-4' key={index}>
               <Image
@@ -46,7 +47,7 @@ export default function Breeds({
               />
               <div className='ml-3'>
                 <p>
-                  <strong>{breed.breed}</strong>
+                  <strong>{breed.name}</strong>
                   <br />
                   <strong>Count: </strong>
                   {breed.count}
