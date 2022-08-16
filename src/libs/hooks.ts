@@ -42,12 +42,14 @@ export function useFlockData() {
   const { flockId } = router.query;
 
   const [flock, setFlock] = useState(null);
+  const [flockRef, setFlockRef] = useState(null);
 
   useEffect(() => {
     let unsubFlock;
 
     if (flockId) {
       const flockDoc = doc(firestore, `flocks/${flockId}`);
+      setFlockRef(flockDoc);
 
       unsubFlock = onSnapshot(flockDoc, (doc) => {
         setFlock({
@@ -62,7 +64,7 @@ export function useFlockData() {
     return unsubFlock;
   }, [flockId]);
 
-  return { flockId, flock };
+  return { flockId, flock, flockRef };
 }
 
 export function useLogsData() {

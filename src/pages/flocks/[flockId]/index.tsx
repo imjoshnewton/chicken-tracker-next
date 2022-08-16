@@ -10,6 +10,8 @@ import ExpenseModal from "../../../components/ExpenseModal";
 import Breeds from "../../../components/Breeds";
 import Stats from "../../../components/Stats";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import { MdOutlineEdit } from "react-icons/md";
 
 export default function Flocks({ params }) {
   const router = useRouter();
@@ -38,7 +40,14 @@ export default function Flocks({ params }) {
             />
             {/* <pre>{limit}</pre> */}
             <div className='ml-0 md:ml-6'>
-              <h1>{flock?.name}</h1>
+              <div className='flex items-center'>
+                <h1 className='inline mr-3'>{flock?.name}</h1>
+                <Link href={`/flocks/${flockId}/edit`}>
+                  <a className='hover:cursor-pointer h-full'>
+                    <MdOutlineEdit className='text-xl' />
+                  </a>
+                </Link>
+              </div>
               <p className='description'>{flock?.description}</p>
               <p className='text-gray-400 mt-2'>{flock?.type}</p>
             </div>
