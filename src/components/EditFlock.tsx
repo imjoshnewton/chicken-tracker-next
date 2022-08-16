@@ -48,7 +48,7 @@ function FlockForm({ defaultValues, flockRef }) {
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
 
-  const updateFlock = async ({
+  const updateFlock = ({
     name,
     description,
     type,
@@ -81,10 +81,10 @@ function FlockForm({ defaultValues, flockRef }) {
     // Get downloadURL AFTER task resolves (Note: this is not a native Promise)
     task
       .then((d) => getDownloadURL(uploadRef))
-      .then((url) => {
+      .then(async (url) => {
         const imageUrl = url;
         setUploading(false);
-        updateDoc(flockRef, {
+        await updateDoc(flockRef, {
           name,
           description,
           type,
@@ -145,7 +145,7 @@ function FlockForm({ defaultValues, flockRef }) {
         <div className='flex items-center mt-4'>
           <button
             type='submit'
-            className='px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 btn w-full md:w-auto h-10 mr-3'
+            className='px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mb-1 btn w-full md:w-auto h-10 mr-3'
             disabled={!isDirty || !isValid}>
             Save Changes
           </button>
